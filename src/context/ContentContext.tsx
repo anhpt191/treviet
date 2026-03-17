@@ -152,8 +152,10 @@ const defaultContent: ContentData = {
 
 interface ContentContextType {
   content: ContentData;
-  updateContent: (newContent: ContentData) => void;
-  resetContent: () => void;
+  updateContent: (newContent: ContentData) => Promise<boolean>;
+  resetContent: () => Promise<boolean>;
+  isConnected: boolean;
+  isLoading: boolean;
 }
 
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
@@ -161,6 +163,7 @@ const ContentContext = createContext<ContentContextType | undefined>(undefined);
 export function ContentProvider({ children }: { children: React.ReactNode }) {
   const [content, setContent] = useState<ContentData>(defaultContent);
   const [isLoading, setIsLoading] = useState(true);
+  const [isConnected, setIsConnected] = useState(!!supabase);
 
   // Load from Supabase or localStorage on mount
   useEffect(() => {
@@ -174,14 +177,23 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
             .from('site_content')
             .select('data')
             .eq('id', 1)
-            .single();
+            .maybeSingle();
           
-          if (data?.data) {
+          if (error) {
+            console.error("Supabase fetch error:", error);
+            setIsConnected(false);
+          } else if (data?.data) {
             loadedData = data.data;
+            setIsConnected(true);
+          } else {
+            console.warn("No data found in Supabase for id: 1");
           }
         } catch (error) {
-          console.error("Supabase fetch error:", error);
+          console.error("Supabase connection error:", error);
+          setIsConnected(false);
         }
+      } else {
+        setIsConnected(false);
       }
 
       // Fallback to localStorage
@@ -216,7 +228,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     loadContent();
   }, []);
 
-  const updateContent = async (newContent: ContentData) => {
+  const updateContent = async (newContent: ContentData): Promise<boolean> => {
     setContent(newContent);
     // Always save to localStorage as a backup
     localStorage.setItem('treviet_content', JSON.stringify(newContent));
@@ -224,32 +236,54 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     // Save to Supabase if configured
     if (supabase) {
       try {
-        await supabase
+        const { error } = await supabase
           .from('site_content')
           .upsert({ id: 1, data: newContent });
+        
+        if (error) {
+          console.error("Failed to save to Supabase:", error);
+          setIsConnected(false);
+          return false;
+        }
+        setIsConnected(true);
+        return true;
       } catch (error) {
         console.error("Failed to save to Supabase:", error);
+        setIsConnected(false);
+        return false;
       }
     }
+    return false;
   };
 
-  const resetContent = async () => {
+  const resetContent = async (): Promise<boolean> => {
     setContent(defaultContent);
     localStorage.removeItem('treviet_content');
     
     if (supabase) {
       try {
-        await supabase
+        const { error } = await supabase
           .from('site_content')
           .upsert({ id: 1, data: defaultContent });
+        
+        if (error) {
+          console.error("Failed to reset in Supabase:", error);
+          setIsConnected(false);
+          return false;
+        }
+        setIsConnected(true);
+        return true;
       } catch (error) {
         console.error("Failed to reset in Supabase:", error);
+        setIsConnected(false);
+        return false;
       }
     }
+    return false;
   };
 
   return (
-    <ContentContext.Provider value={{ content, updateContent, resetContent }}>
+    <ContentContext.Provider value={{ content, updateContent, resetContent, isConnected, isLoading }}>
       {!isLoading && children}
     </ContentContext.Provider>
   );

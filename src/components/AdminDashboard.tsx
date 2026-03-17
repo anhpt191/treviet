@@ -141,9 +141,13 @@ export default function AdminDashboard() {
     </div>
   );
 
-  const handleSave = () => {
-    updateContent(formData);
-    setSaveMessage('Gespeichert!');
+  const handleSave = async () => {
+    const success = await updateContent(formData);
+    if (success) {
+      setSaveMessage('Gespeichert!');
+    } else {
+      setSaveMessage('Lưu thất bại! (Supabase mất kết nối)');
+    }
     setTimeout(() => setSaveMessage(''), 3000);
   };
 
@@ -175,6 +179,11 @@ export default function AdminDashboard() {
             <h1 className="font-serif text-xl font-bold">Admin Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">
+            {!useContent().isConnected && (
+              <span className="bg-red-500/20 text-red-200 px-3 py-1 rounded-full text-xs font-bold border border-red-500/50 animate-pulse">
+                Supabase Disconnected
+              </span>
+            )}
             {saveMessage && (
               <span className="text-tre-gold font-medium animate-pulse">{saveMessage}</span>
             )}
