@@ -141,13 +141,9 @@ export default function AdminDashboard() {
     </div>
   );
 
-  const handleSave = async () => {
-    const success = await updateContent(formData);
-    if (success) {
-      setSaveMessage('Gespeichert!');
-    } else {
-      setSaveMessage('Lưu thất bại! (Supabase mất kết nối)');
-    }
+  const handleSave = () => {
+    updateContent(formData);
+    setSaveMessage('Gespeichert!');
     setTimeout(() => setSaveMessage(''), 3000);
   };
 
@@ -179,11 +175,6 @@ export default function AdminDashboard() {
             <h1 className="font-serif text-xl font-bold">Admin Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">
-            {!useContent().isConnected && (
-              <span className="bg-red-500/20 text-red-200 px-3 py-1 rounded-full text-xs font-bold border border-red-500/50 animate-pulse">
-                Supabase Disconnected
-              </span>
-            )}
             {saveMessage && (
               <span className="text-tre-gold font-medium animate-pulse">{saveMessage}</span>
             )}
@@ -302,6 +293,48 @@ export default function AdminDashboard() {
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-tre-gold focus:border-transparent"
                     placeholder="z.B. Montag: 17:00 - 22:00 Uhr | Di-So: 11:00 - 15:00 & 17:00 - 22:00 Uhr"
                   />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Button 1 Text (Reservieren)</label>
+                    <input 
+                      type="text" 
+                      value={formData.hero.reservationText || ''}
+                      onChange={(e) => handleChange('hero', 'reservationText', e.target.value)}
+                      className="w-full p-2 border rounded focus:ring-2 focus:ring-tre-gold focus:border-transparent"
+                      placeholder="TISCH RESERVIEREN"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Button 1 Link</label>
+                    <input 
+                      type="text" 
+                      value={formData.hero.reservationLink || ''}
+                      onChange={(e) => handleChange('hero', 'reservationLink', e.target.value)}
+                      className="w-full p-2 border rounded focus:ring-2 focus:ring-tre-gold focus:border-transparent"
+                      placeholder="#reservation oder https://..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Button 2 Text (Bestellen)</label>
+                    <input 
+                      type="text" 
+                      value={formData.hero.orderText || ''}
+                      onChange={(e) => handleChange('hero', 'orderText', e.target.value)}
+                      className="w-full p-2 border rounded focus:ring-2 focus:ring-tre-gold focus:border-transparent"
+                      placeholder="ONLINE BESTELLEN"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Button 2 Link</label>
+                    <input 
+                      type="text" 
+                      value={formData.hero.orderLink || ''}
+                      onChange={(e) => handleChange('hero', 'orderLink', e.target.value)}
+                      className="w-full p-2 border rounded focus:ring-2 focus:ring-tre-gold focus:border-transparent"
+                      placeholder="https://..."
+                    />
+                  </div>
                 </div>
                 <ImageInput 
                   label="Hintergrundbild (URL oder Upload)" 

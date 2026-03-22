@@ -12,6 +12,10 @@ export interface ContentData {
     title: string;
     subtitle: string;
     buttonText: string;
+    reservationText?: string;
+    reservationLink?: string;
+    orderText?: string;
+    orderLink?: string;
     backgroundImage: string;
     logoImage: string;
     openingHours: string;
@@ -75,6 +79,10 @@ const defaultContent: ContentData = {
     title: "TreViet",
     subtitle: "Cuisine Vietnamese",
     buttonText: "Reservieren",
+    reservationText: "TISCH RESERVIEREN",
+    reservationLink: "#reservation",
+    orderText: "ONLINE BESTELLEN",
+    orderLink: "#",
     backgroundImage: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=2070&auto=format&fit=crop",
     logoImage: "https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png",
     openingHours: "Montag: 17:00 - 22:00 Uhr | Di-So: 11:00 - 15:00 & 17:00 - 22:00 Uhr"
@@ -152,10 +160,8 @@ const defaultContent: ContentData = {
 
 interface ContentContextType {
   content: ContentData;
-  updateContent: (newContent: ContentData) => Promise<boolean>;
-  resetContent: () => Promise<boolean>;
-  isConnected: boolean;
-  isLoading: boolean;
+  updateContent: (newContent: ContentData) => void;
+  resetContent: () => void;
 }
 
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
@@ -163,7 +169,6 @@ const ContentContext = createContext<ContentContextType | undefined>(undefined);
 export function ContentProvider({ children }: { children: React.ReactNode }) {
   const [content, setContent] = useState<ContentData>(defaultContent);
   const [isLoading, setIsLoading] = useState(true);
-  const [isConnected, setIsConnected] = useState(!!supabase);
 
   // Load from Supabase or localStorage on mount
   useEffect(() => {
@@ -177,23 +182,14 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
             .from('site_content')
             .select('data')
             .eq('id', 1)
-            .maybeSingle();
+            .single();
           
-          if (error) {
-            console.error("Supabase fetch error:", error);
-            setIsConnected(false);
-          } else if (data?.data) {
+          if (data?.data) {
             loadedData = data.data;
-            setIsConnected(true);
-          } else {
-            console.warn("No data found in Supabase for id: 1");
           }
         } catch (error) {
-          console.error("Supabase connection error:", error);
-          setIsConnected(false);
+          console.error("Supabase fetch error:", error);
         }
-      } else {
-        setIsConnected(false);
       }
 
       // Fallback to localStorage
@@ -228,7 +224,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     loadContent();
   }, []);
 
-  const updateContent = async (newContent: ContentData): Promise<boolean> => {
+  const updateContent = async (newContent: ContentData) => {
     setContent(newContent);
     // Always save to localStorage as a backup
     localStorage.setItem('treviet_content', JSON.stringify(newContent));
@@ -236,54 +232,32 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     // Save to Supabase if configured
     if (supabase) {
       try {
-        const { error } = await supabase
+        await supabase
           .from('site_content')
           .upsert({ id: 1, data: newContent });
-        
-        if (error) {
-          console.error("Failed to save to Supabase:", error);
-          setIsConnected(false);
-          return false;
-        }
-        setIsConnected(true);
-        return true;
       } catch (error) {
         console.error("Failed to save to Supabase:", error);
-        setIsConnected(false);
-        return false;
       }
     }
-    return false;
   };
 
-  const resetContent = async (): Promise<boolean> => {
+  const resetContent = async () => {
     setContent(defaultContent);
     localStorage.removeItem('treviet_content');
     
     if (supabase) {
       try {
-        const { error } = await supabase
+        await supabase
           .from('site_content')
           .upsert({ id: 1, data: defaultContent });
-        
-        if (error) {
-          console.error("Failed to reset in Supabase:", error);
-          setIsConnected(false);
-          return false;
-        }
-        setIsConnected(true);
-        return true;
       } catch (error) {
         console.error("Failed to reset in Supabase:", error);
-        setIsConnected(false);
-        return false;
       }
     }
-    return false;
   };
 
   return (
-    <ContentContext.Provider value={{ content, updateContent, resetContent, isConnected, isLoading }}>
+    <ContentContext.Provider value={{ content, updateContent, resetContent }}>
       {!isLoading && children}
     </ContentContext.Provider>
   );

@@ -25,12 +25,13 @@ export default function Header() {
   ];
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || location.pathname !== '/' ? 'bg-tre-dark/95 backdrop-blur-md py-2 shadow-lg' : 'bg-transparent py-6'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled || location.pathname !== '/' ? 'bg-tre-dark/95 backdrop-blur-md py-2 shadow-lg' : 'bg-transparent py-6'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
@@ -76,14 +77,15 @@ export default function Header() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-white"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={`md:hidden text-white ${isMobileMenuOpen ? 'invisible' : ''}`}
+            onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <Menu size={24} />
           </button>
         </div>
       </div>
+      </header>
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -93,7 +95,7 @@ export default function Header() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 z-40 md:hidden"
+              className="fixed inset-0 bg-black/60 z-[100] md:hidden"
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <motion.div
@@ -101,7 +103,7 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.3 }}
-              className="fixed top-0 left-0 bottom-0 w-64 bg-tre-dark z-50 md:hidden shadow-2xl flex flex-col"
+              className="fixed top-0 left-0 bottom-0 w-64 bg-tre-dark z-[101] md:hidden shadow-2xl flex flex-col"
             >
               <div className="p-6 flex justify-between items-center border-b border-white/10">
                 <span className="font-serif text-xl font-bold text-tre-cream">Menu</span>
@@ -125,6 +127,6 @@ export default function Header() {
           </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }

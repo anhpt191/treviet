@@ -34,10 +34,29 @@ export default function Hero() {
             />
           )}
           {hero.openingHours && (
-            <p className="text-tre-cream/90 text-sm md:text-base font-medium tracking-wide drop-shadow-md bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm">
+            <p className="text-tre-cream/90 text-sm md:text-base font-medium tracking-wide drop-shadow-md bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm mb-8">
               {hero.openingHours}
             </p>
           )}
+          
+          <div className="flex flex-col gap-4 w-full max-w-xs mx-auto">
+            {hero.reservationText && (
+              <a 
+                href={hero.reservationLink || '#reservation'}
+                className="w-full bg-black/30 backdrop-blur-sm border border-tre-cream text-tre-cream py-3 px-6 uppercase tracking-widest text-sm font-bold hover:bg-tre-cream hover:text-tre-dark transition-all duration-300 text-center"
+              >
+                {hero.reservationText}
+              </a>
+            )}
+            {hero.orderText && (
+              <a 
+                href={hero.orderLink || '#'}
+                className="w-full bg-black/30 backdrop-blur-sm border border-tre-cream text-tre-cream py-3 px-6 uppercase tracking-widest text-sm font-bold hover:bg-tre-cream hover:text-tre-dark transition-all duration-300 text-center"
+              >
+                {hero.orderText}
+              </a>
+            )}
+          </div>
         </motion.div>
       </div>
     </section>
