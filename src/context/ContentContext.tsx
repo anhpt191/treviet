@@ -80,9 +80,9 @@ const defaultContent: ContentData = {
     subtitle: "Cuisine Vietnamese",
     buttonText: "Reservieren",
     reservationText: "TISCH RESERVIEREN",
-    reservationLink: "#reservation",
+    reservationLink: "https://reservation.dish.co/widget/hydra-eb7cea8e-a3f6-4fdf-a8e8-f017d5cfdcef",
     orderText: "ONLINE BESTELLEN",
-    orderLink: "#",
+    orderLink: "https://tre-viet.order.dish.co/menus",
     backgroundImage: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=2070&auto=format&fit=crop",
     logoImage: "https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png",
     openingHours: "Montag: 17:00 - 22:00 Uhr | Di-So: 11:00 - 15:00 & 17:00 - 22:00 Uhr"
